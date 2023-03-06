@@ -122,7 +122,9 @@ int main(int argc, char **argv)
         averages.emplace_back(find_avg(w, h, imgdata, { 0, 0, 0 }));
     }
 
-    printf("Average frames per minimum: %.2f\n", find_avg_interval(averages));
+    float interval = find_avg_interval(averages);
+    printf("Average frames per minimum: %.2f\n", interval);
+    printf("Bpm = %d\n", (int)(fps / interval * 60.f));
 
     return 0;
 }
