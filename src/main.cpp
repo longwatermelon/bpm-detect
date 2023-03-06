@@ -69,9 +69,11 @@ float find_avg_interval(const std::vector<float> &averages)
     int n = 0;
     float sum = 0.f;
 
-    for (size_t i = 1; i < averages.size(); ++i)
+    for (size_t i = 1; i < averages.size() - 2; ++i)
     {
-        if (averages[i] < averages[i - 1] && !increasing)
+        if (averages[i] < averages[i - 1] &&
+            averages[i + 1] < averages[i] &&
+            averages[i + 2] < averages[i + 1] && !increasing)
         {
             printf("Min at %zu\n", i);
             increasing = true;
@@ -80,6 +82,7 @@ float find_avg_interval(const std::vector<float> &averages)
             else
             {
                 sum += i - last_min;
+                last_min = i;
                 ++n;
             }
         }
@@ -115,12 +118,16 @@ int main(int argc, char **argv)
     // w and h are always the same
     int w, h;
     std::vector<float> averages;
-    for (int i = 0; i < nframes; ++i)
+    for (int i = 1; i < nframes; ++i)
     {
+        printf("\rReading frame %d", i);
+        fflush(stdout);
         std::vector<Color> imgdata;
-        load_image(imgdata, "frames/" + std::to_string(i) + ".png", w, h);
-        averages.emplace_back(find_avg(w, h, imgdata, { 0, 0, 0 }));
+        load_image(imgdata, "test-frames/" + std::to_string(i) + ".png", w, h);
+        averages.emplace_back(find_avg(w, h, imgdata, { 200, 72, 97 }));
     }
+
+    printf("\n");
 
     float interval = find_avg_interval(averages);
     printf("Average frames per minimum: %.2f\n", interval);
