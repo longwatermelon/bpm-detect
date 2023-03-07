@@ -10,6 +10,8 @@ extern "C" {
 
 using Color = std::array<unsigned char, 3>;
 
+bool g_verbose = false;
+
 bool close(Color a, Color b)
 {
     for (int i = 0; i < 3; ++i)
@@ -75,7 +77,8 @@ float find_avg_interval(const std::vector<float> &averages)
             averages[i + 1] < averages[i] &&
             averages[i + 2] < averages[i + 1] && !increasing)
         {
-            printf("Min at %zu\n", i);
+            if (g_verbose)
+                printf("Min at %zu\n", i);
             increasing = true;
             if (last_min == -1)
                 last_min = i;
@@ -105,6 +108,9 @@ int main(int argc, char **argv)
 
         if (strcmp(argv[i], "-fps") == 0)
             fps = std::stoi(argv[++i]);
+
+        if (strcmp(argv[i], "-v") == 0)
+            g_verbose = true;
     }
 
     if (nframes == 0)
@@ -120,14 +126,19 @@ int main(int argc, char **argv)
     std::vector<float> averages;
     for (int i = 1; i < nframes; ++i)
     {
-        printf("\rReading frame %d", i);
-        fflush(stdout);
+        if (g_verbose)
+        {
+            printf("\rReading frame %d", i);
+            fflush(stdout);
+        }
+
         std::vector<Color> imgdata;
         load_image(imgdata, "test-frames/" + std::to_string(i) + ".png", w, h);
         averages.emplace_back(find_avg(w, h, imgdata, { 200, 72, 97 }));
     }
 
-    printf("\n");
+    if (g_verbose)
+        printf("\n");
 
     float interval = find_avg_interval(averages);
     printf("Average frames per minimum: %.2f\n", interval);
